@@ -19,25 +19,51 @@ const initialCheckoutForm = {
 function getValidationText(language) {
   if (language === "en") {
     return {
-      invalid: "Some fields are filled incorrectly.",
-      city: "Enter the delivery city.",
-      address: "Enter the delivery address.",
-      cardNumber: "Enter a valid card number.",
-      cardHolder: "Enter the cardholder name.",
-      cardExpiry: "Enter expiry in MM/YY format.",
-      cardCvv: "Enter a valid CVV."
+      invalid: "Please correct the highlighted fields before placing the order.",
+      city:
+        "City must contain only letters, spaces, or hyphens. Example: Astana",
+      address: "Address must be at least 8 characters long.",
+      cardNumber: "Card number must match the format 1234 5678 9012 3456.",
+      cardHolder: "Cardholder name must contain only letters and spaces.",
+      cardExpiry: "Expiry date must match the format MM/YY and be valid.",
+      cardCvv: "CVV must contain 3 or 4 digits."
     };
   }
 
   return {
-    invalid: "Некоторые поля заполнены неверно.",
-    city: "Введите город доставки.",
-    address: "Введите адрес доставки.",
-    cardNumber: "Введите корректный номер карты.",
-    cardHolder: "Введите имя владельца карты.",
-    cardExpiry: "Введите срок действия в формате MM/YY.",
-    cardCvv: "Введите корректный CVV."
+    invalid: "Исправьте выделенные поля перед оформлением заказа.",
+    city: "Город должен содержать только буквы, пробелы или дефис. Пример: Астана",
+    address: "Адрес должен содержать минимум 8 символов.",
+    cardNumber: "Номер карты должен быть в формате 1234 5678 9012 3456.",
+    cardHolder: "Имя владельца должно содержать только буквы и пробелы.",
+    cardExpiry: "Срок действия должен быть в формате MM/YY и быть актуальным.",
+    cardCvv: "CVV должен содержать 3 или 4 цифры."
   };
+}
+
+function normalizeCardNumber(value) {
+  return value.replace(/\D/g, "").slice(0, 16);
+}
+
+function formatCardNumber(value) {
+  const normalized = normalizeCardNumber(value);
+  return normalized.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+}
+
+function formatExpiry(value) {
+  const normalized = value.replace(/\D/g, "").slice(0, 4);
+  if (normalized.length <= 2) return normalized;
+  return `${normalized.slice(0, 2)}/${normalized.slice(2)}`;
+}
+
+function isValidExpiry(value) {
+  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) return false;
+  const [monthText, yearText] = value.split("/");
+  const month = Number(monthText);
+  const year = Number(`20${yearText}`);
+  const now = new Date();
+  const expiry = new Date(year, month);
+  return expiry > now;
 }
 
 export default function CartDrawer() {
@@ -51,7 +77,13 @@ export default function CartDrawer() {
   const showCardFields = useMemo(() => form.paymentMethod === "card", [form.paymentMethod]);
 
   function updateField(key, value) {
-    setForm((current) => ({ ...current, [key]: value }));
+    let nextValue = value;
+
+    if (key === "cardNumber") nextValue = formatCardNumber(value);
+    if (key === "cardExpiry") nextValue = formatExpiry(value);
+    if (key === "cardCvv") nextValue = value.replace(/\D/g, "").slice(0, 4);
+
+    setForm((current) => ({ ...current, [key]: nextValue }));
     setFieldErrors((current) => ({ ...current, [key]: "" }));
     setMessage("");
   }
@@ -59,15 +91,16 @@ export default function CartDrawer() {
   function validateForm() {
     const labels = getValidationText(language);
     const errors = {};
+    const cityPattern = /^[A-Za-zА-Яа-яЁёІіҢңҒғҚқҮүҰұҺһӨөӘә\s-]{2,}$/;
+    const holderPattern = /^[A-Za-zА-Яа-яЁёІіҢңҒғҚқҮүҰұҺһӨөӘә\s]{3,}$/;
 
-    if (!form.city.trim()) errors.city = labels.city;
-    if (!form.address.trim()) errors.address = labels.address;
+    if (!cityPattern.test(form.city.trim())) errors.city = labels.city;
+    if (form.address.trim().length < 8) errors.address = labels.address;
 
     if (form.paymentMethod === "card") {
-      const normalizedCard = form.cardNumber.replace(/\s+/g, "");
-      if (!/^\d{16}$/.test(normalizedCard)) errors.cardNumber = labels.cardNumber;
-      if (!form.cardHolder.trim() || form.cardHolder.trim().length < 3) errors.cardHolder = labels.cardHolder;
-      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.cardExpiry.trim())) errors.cardExpiry = labels.cardExpiry;
+      if (!/^\d{4} \d{4} \d{4} \d{4}$/.test(form.cardNumber.trim())) errors.cardNumber = labels.cardNumber;
+      if (!holderPattern.test(form.cardHolder.trim())) errors.cardHolder = labels.cardHolder;
+      if (!isValidExpiry(form.cardExpiry.trim())) errors.cardExpiry = labels.cardExpiry;
       if (!/^\d{3,4}$/.test(form.cardCvv.trim())) errors.cardCvv = labels.cardCvv;
     }
 

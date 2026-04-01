@@ -282,14 +282,16 @@ button { cursor: pointer; }
   gap: 10px;
 }
 .field--error {
-  border-color: rgba(214, 104, 86, 0.9);
-  box-shadow: inset 0 0 0 1px rgba(214, 104, 86, 0.28);
+  border-color: rgba(214, 88, 88, 0.98);
+  background: rgba(120, 25, 25, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(214, 88, 88, 0.34);
 }
 .field-error {
   margin: 0;
-  color: #f1a693;
-  font-size: 0.78rem;
-  line-height: 1.35;
+  color: #ffb2a6;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  font-weight: 500;
 }
 .status-pill {
   display: inline-flex;
@@ -456,7 +458,12 @@ button { cursor: pointer; }
 .cart-list { overflow: auto; padding: 18px 0; }
 .form-message, .muted { color: var(--paper-soft); }
 .form-message--warning {
-  color: #f1b19d;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(118, 22, 22, 0.22);
+  border: 1px solid rgba(214, 88, 88, 0.32);
+  color: #ffbeb3;
 }
 .site-footer { border-top: 1px solid var(--border); background: rgba(18, 13, 11, 0.9); padding: 28px 0 42px; }
 .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
