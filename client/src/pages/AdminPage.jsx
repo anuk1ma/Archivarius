@@ -1,45 +1,94 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { localizeBook } from "../utils/localizeBook";
 
 const initialBook = {
   title: "",
+  titleEn: "",
   author: "",
+  authorEn: "",
   genre: "",
+  genreEn: "",
   description: "",
+  descriptionEn: "",
   publishYear: "",
   publisher: "",
+  publisherEn: "",
   language: "",
+  languageEn: "",
   rating: "",
   priceKzt: "",
   coverUrl: "",
   popularity: ""
 };
 
-const formLabels = {
-  title: "Название",
-  author: "Автор",
-  genre: "Жанр",
-  description: "Описание",
-  publishYear: "Год издания",
-  publisher: "Издательство",
-  language: "Язык",
-  rating: "Рейтинг",
-  priceKzt: "Цена в KZT",
-  coverUrl: "Ссылка на обложку",
-  popularity: "Популярность"
-};
+function getFormLabels(language) {
+  if (language === "en") {
+    return {
+      title: "Title (RU)",
+      titleEn: "Title (EN)",
+      author: "Author (RU)",
+      authorEn: "Author (EN)",
+      genre: "Genre (RU)",
+      genreEn: "Genre (EN)",
+      description: "Description (RU)",
+      descriptionEn: "Description (EN)",
+      publishYear: "Publication year",
+      publisher: "Publisher (RU)",
+      publisherEn: "Publisher (EN)",
+      language: "Language (RU)",
+      languageEn: "Language (EN)",
+      rating: "Rating",
+      priceKzt: "Price in KZT",
+      coverUrl: "Cover image URL",
+      popularity: "Popularity"
+    };
+  }
+
+  return {
+    title: "Название (RU)",
+    titleEn: "Название (EN)",
+    author: "Автор (RU)",
+    authorEn: "Автор (EN)",
+    genre: "Жанр (RU)",
+    genreEn: "Жанр (EN)",
+    description: "Описание (RU)",
+    descriptionEn: "Описание (EN)",
+    publishYear: "Год издания",
+    publisher: "Издательство (RU)",
+    publisherEn: "Издательство (EN)",
+    language: "Язык (RU)",
+    languageEn: "Язык (EN)",
+    rating: "Рейтинг",
+    priceKzt: "Цена в KZT",
+    coverUrl: "Ссылка на обложку",
+    popularity: "Популярность"
+  };
+}
+
+function getStatusLabel(status, t) {
+  if (status === "cancelled") return t.statusCancelled;
+  return t.statusInTransit;
+}
+
+function getRoleLabel(role, language) {
+  if (language === "en") return role;
+  return role === "admin" ? "администратор" : "пользователь";
+}
 
 export default function AdminPage() {
   const { token } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [books, setBooks] = useState([]);
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(initialBook);
   const [editingId, setEditingId] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
+
+  const formLabels = useMemo(() => getFormLabels(language), [language]);
 
   useEffect(() => {
     refreshAll();
@@ -68,10 +117,10 @@ export default function AdminPage() {
 
     if (editingId) {
       await api.put(`/admin/books/${editingId}`, payload, token);
-      setStatusMessage("Книга обновлена.");
+      setStatusMessage(t.adminBookUpdated);
     } else {
       await api.post("/admin/books", payload, token);
-      setStatusMessage("Книга создана.");
+      setStatusMessage(t.adminBookCreated);
     }
 
     setForm(initialBook);
@@ -81,19 +130,25 @@ export default function AdminPage() {
 
   async function deleteBook(id) {
     await api.delete(`/admin/books/${id}`, token);
-    setStatusMessage("Книга удалена.");
+    setStatusMessage(t.adminBookDeleted);
     await refreshAll();
   }
 
   async function toggleRole(userId, role) {
     await api.patch(`/admin/users/${userId}`, { role }, token);
-    setStatusMessage("Роль пользователя изменена.");
+    setStatusMessage(t.adminRoleUpdated);
+    await refreshAll();
+  }
+
+  async function deleteUser(userId) {
+    await api.delete(`/admin/users/${userId}`, token);
+    setStatusMessage(t.adminUserDeleted);
     await refreshAll();
   }
 
   async function updateOrderStatus(orderId, status) {
     await api.patch(`/admin/orders/${orderId}`, { status }, token);
-    setStatusMessage("Статус заказа обновлен.");
+    setStatusMessage(t.adminOrderUpdated);
     await refreshAll();
   }
 
@@ -101,12 +156,18 @@ export default function AdminPage() {
     setEditingId(book.id);
     setForm({
       title: book.title,
+      titleEn: book.title_en || "",
       author: book.author,
+      authorEn: book.author_en || "",
       genre: book.genre,
+      genreEn: book.genre_en || "",
       description: book.description,
+      descriptionEn: book.description_en || "",
       publishYear: book.publish_year,
       publisher: book.publisher,
+      publisherEn: book.publisher_en || "",
       language: book.book_language,
+      languageEn: book.book_language_en || "",
       rating: book.rating,
       priceKzt: book.price_kzt,
       coverUrl: book.cover_url,
@@ -129,7 +190,7 @@ export default function AdminPage() {
             {Object.entries(form).map(([key, value]) => (
               <label key={key} className="field-group">
                 <span>{formLabels[key]}</span>
-                {key === "description" ? (
+                {key === "description" || key === "descriptionEn" ? (
                   <textarea
                     className="field field-textarea"
                     placeholder={formLabels[key]}
@@ -162,40 +223,53 @@ export default function AdminPage() {
 
         <div className="paper-card">
           <h2>{t.adminBookList}</h2>
-          {books.map((book) => (
-            <article key={book.id} className="admin-item">
-              <div className="admin-item__content">
-                <strong>{book.title}</strong>
-                <span>
-                  {book.author} • {book.genre} • {Number(book.price_kzt).toLocaleString()} KZT
-                </span>
-              </div>
-              <div className="admin-item__actions">
-                <button className="ghost-button" type="button" onClick={() => startEdit(book)}>
-                  {t.adminEdit}
-                </button>
-                <button className="ghost-button" type="button" onClick={() => deleteBook(book.id)}>
-                  {t.delete}
-                </button>
-              </div>
-            </article>
-          ))}
+          {books.map((book) => {
+            const localizedBook = localizeBook(book, language);
+            return (
+              <article key={book.id} className="admin-item">
+                <div className="admin-item__content">
+                  <strong>{localizedBook.title}</strong>
+                  <span>
+                    {localizedBook.author} • {localizedBook.genre} • {Number(book.price_kzt).toLocaleString()} KZT
+                  </span>
+                </div>
+                <div className="admin-item__actions">
+                  <button className="ghost-button" type="button" onClick={() => startEdit(book)}>
+                    {t.adminEdit}
+                  </button>
+                  <button className="ghost-button" type="button" onClick={() => deleteBook(book.id)}>
+                    {t.delete}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
 
         <div className="paper-card">
           <h2>{t.adminUsers}</h2>
           {users.map((currentUser) => (
             <article key={currentUser.id} className="admin-item">
-              <span>
-                {currentUser.name} - {currentUser.role}
-              </span>
-              <button
-                className="ghost-button"
-                type="button"
-                onClick={() => toggleRole(currentUser.id, currentUser.role === "admin" ? "user" : "admin")}
-              >
-                {t.adminRoleToggle}
-              </button>
+              <div className="admin-item__content">
+                <strong>{currentUser.name}</strong>
+                <span>
+                  {currentUser.email} • {getRoleLabel(currentUser.role, language)}
+                </span>
+              </div>
+              <div className="admin-item__actions">
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={() => toggleRole(currentUser.id, currentUser.role === "admin" ? "user" : "admin")}
+                >
+                  {t.adminRoleToggle}
+                </button>
+                {currentUser.role !== "admin" && (
+                  <button className="ghost-button" type="button" onClick={() => deleteUser(currentUser.id)}>
+                    {t.adminDeleteUser}
+                  </button>
+                )}
+              </div>
             </article>
           ))}
         </div>
@@ -205,9 +279,12 @@ export default function AdminPage() {
           {orders.map((order) => (
             <article key={order.id} className="admin-item">
               <div className="admin-item__content">
-                <strong>#{order.id}</strong>
+                <strong>
+                  {t.orderLabel} #{order.id}
+                </strong>
                 <span>
-                  {order.name || "User"} • {Number(order.total_price).toLocaleString()} KZT
+                  {order.name || t.adminUnknownUser} • {Number(order.total_price).toLocaleString()} KZT •{" "}
+                  {getStatusLabel(order.status, t)}
                 </span>
               </div>
               <select
@@ -215,8 +292,8 @@ export default function AdminPage() {
                 value={order.status}
                 onChange={(event) => updateOrderStatus(order.id, event.target.value)}
               >
-                <option value="in_transit">in_transit</option>
-                <option value="cancelled">cancelled</option>
+                <option value="in_transit">{t.statusInTransit}</option>
+                <option value="cancelled">{t.statusCancelled}</option>
               </select>
             </article>
           ))}

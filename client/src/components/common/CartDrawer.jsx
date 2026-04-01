@@ -3,19 +3,21 @@ import { useCart } from "../../contexts/CartContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
 import BookCover from "./BookCover";
+import { localizeBook } from "../../utils/localizeBook";
+import { translateErrorMessage } from "../../utils/translateErrorMessage";
 
 export default function CartDrawer() {
   const { items, total, isCartOpen, setIsCartOpen, removeItem, checkout } = useCart();
   const { isAuthenticated } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [message, setMessage] = useState("");
 
   async function handleCheckout() {
     try {
-      const data = await checkout();
-      setMessage(data.message || t.orderSuccess);
+      await checkout();
+      setMessage(t.orderSuccess);
     } catch (error) {
-      setMessage(error.message);
+      setMessage(translateErrorMessage(error.message, language));
     }
   }
 
@@ -29,24 +31,27 @@ export default function CartDrawer() {
       </div>
 
       {!isAuthenticated ? (
-        <p className="muted">Войдите, чтобы пользоваться корзиной.</p>
+        <p className="muted">{t.cartLoginHint}</p>
       ) : items.length === 0 ? (
         <p className="muted">{t.cartEmpty}</p>
       ) : (
         <div className="cart-list">
-          {items.map((item) => (
-            <article key={item.book_id} className="cart-item">
-              <BookCover book={item} compact />
-              <div>
-                <h4>{item.title}</h4>
-                <p>{item.author}</p>
-                <p>{Number(item.price_kzt).toLocaleString()} KZT</p>
-              </div>
-              <button type="button" onClick={() => removeItem(item.book_id)}>
-                x
-              </button>
-            </article>
-          ))}
+          {items.map((item) => {
+            const localized = localizeBook(item, language);
+            return (
+              <article key={item.book_id} className="cart-item">
+                <BookCover book={localized} compact />
+                <div>
+                  <h4>{localized.title}</h4>
+                  <p>{localized.author}</p>
+                  <p>{Number(item.price_kzt).toLocaleString()} KZT</p>
+                </div>
+                <button type="button" onClick={() => removeItem(item.book_id)}>
+                  x
+                </button>
+              </article>
+            );
+          })}
         </div>
       )}
 

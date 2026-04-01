@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useLanguage } from "../contexts/LanguageContext";
 import BookCard from "../components/catalog/BookCard";
+import { localizeBook } from "../utils/localizeBook";
 
 export default function HomePage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
@@ -31,11 +32,11 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hero-panel">
-            <p>1913 Archive Selection</p>
+            <p>{t.archiveSelectionLabel}</p>
             <ul>
-              <li>Русская и европейская классика</li>
-              <li>Антиутопии и интеллектуальная проза</li>
-              <li>Редкие издания и культовые авторы</li>
+              <li>{t.homeSelectionItem1}</li>
+              <li>{t.homeSelectionItem2}</li>
+              <li>{t.homeSelectionItem3}</li>
             </ul>
           </div>
         </div>
@@ -45,20 +46,14 @@ export default function HomePage() {
         <div className="container">
           <div className="section-grid">
             <article className="paper-card feature-card">
-              <p className="eyebrow">Curated Archive</p>
-              <h3>Классика, собранная как галерея эпох</h3>
-              <p>
-                В Архивариусе каталог подан как витрина культовых книг: от русской классики до
-                антиутопий и философской прозы XX века.
-              </p>
+              <p className="eyebrow">{t.homeArchiveEyebrow}</p>
+              <h3>{t.homeArchiveTitle}</h3>
+              <p>{t.homeArchiveText}</p>
             </article>
             <article className="paper-card feature-card">
-              <p className="eyebrow">Reader Flow</p>
-              <h3>Поиск и заказ без лишнего шума</h3>
-              <p>
-                Интерфейс построен так, чтобы преподавателю было легко увидеть критерии, а
-                пользователю легко пройти путь от поиска книги до оформления заказа.
-              </p>
+              <p className="eyebrow">{t.homeFlowEyebrow}</p>
+              <h3>{t.homeFlowTitle}</h3>
+              <p>{t.homeFlowText}</p>
             </article>
           </div>
           <div className="section-heading">
@@ -66,7 +61,12 @@ export default function HomePage() {
           </div>
           <div className="book-grid">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} isFavorite={false} onFavoriteChange={() => {}} />
+              <BookCard
+                key={book.id}
+                book={localizeBook(book, language)}
+                isFavorite={false}
+                onFavoriteChange={() => {}}
+              />
             ))}
           </div>
         </div>

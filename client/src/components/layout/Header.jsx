@@ -38,7 +38,7 @@ export default function Header() {
             </button>
           </div>
           <button className="cart-button" type="button" onClick={() => setIsCartOpen(true)}>
-            Cart ({items.length})
+            {t.cartButton} ({items.length})
           </button>
           {isAuthenticated ? (
             <div className="user-box">

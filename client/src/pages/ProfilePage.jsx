@@ -3,10 +3,21 @@ import { api } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import BookCover from "../components/common/BookCover";
+import { localizeBook } from "../utils/localizeBook";
+
+function getStatusLabel(status, t) {
+  if (status === "cancelled") return t.statusCancelled;
+  return t.statusInTransit;
+}
+
+function getRoleLabel(role, language) {
+  if (language === "en") return role;
+  return role === "admin" ? "администратор" : "пользователь";
+}
 
 export default function ProfilePage() {
   const { token, user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [tab, setTab] = useState("account");
   const [favorites, setFavorites] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -41,10 +52,10 @@ export default function ProfilePage() {
               <h1>{t.profileTitle}</h1>
               <div className="account-banner">
                 <div>
-                  <p className="eyebrow">Archivarius Reader</p>
+                  <p className="eyebrow">{t.profileReaderType}</p>
                   <h2>{user?.name}</h2>
                 </div>
-                <span className="status-pill">{user?.role}</span>
+                <span className="status-pill">{getRoleLabel(user?.role, language)}</span>
               </div>
               <p>
                 <strong>{t.name}:</strong> {user?.name}
@@ -53,7 +64,7 @@ export default function ProfilePage() {
                 <strong>{t.email}:</strong> {user?.email}
               </p>
               <p>
-                <strong>Role:</strong> {user?.role}
+                <strong>{t.roleLabel}:</strong> {getRoleLabel(user?.role, language)}
               </p>
             </div>
           )}
@@ -63,16 +74,19 @@ export default function ProfilePage() {
               {favorites.length === 0 ? (
                 <p>{t.profileEmptyFavorites}</p>
               ) : (
-                favorites.map((book) => (
-                  <article key={book.id} className="profile-item">
-                    <BookCover book={book} compact />
-                    <div>
-                      <h3>{book.title}</h3>
-                      <p>{book.author}</p>
-                      <p>{Number(book.price_kzt).toLocaleString()} KZT</p>
-                    </div>
-                  </article>
-                ))
+                favorites.map((book) => {
+                  const localized = localizeBook(book, language);
+                  return (
+                    <article key={book.id} className="profile-item">
+                      <BookCover book={localized} compact />
+                      <div>
+                        <h3>{localized.title}</h3>
+                        <p>{localized.author}</p>
+                        <p>{Number(book.price_kzt).toLocaleString()} KZT</p>
+                      </div>
+                    </article>
+                  );
+                })
               )}
             </div>
           )}
@@ -85,8 +99,10 @@ export default function ProfilePage() {
                 orders.map((order) => (
                   <article key={order.id} className="order-card">
                     <div>
-                      <h3>Order #{order.id}</h3>
-                      <p className="status-pill">{order.status}</p>
+                      <h3>
+                        {t.orderLabel} #{order.id}
+                      </h3>
+                      <p className="status-pill">{getStatusLabel(order.status, t)}</p>
                       <p>{Number(order.total_price).toLocaleString()} KZT</p>
                     </div>
                     {order.status !== "cancelled" && (

@@ -7,13 +7,20 @@ export async function fetchBooks({ search = "", genre = "", sort = "popular", li
   if (search) {
     values.push(`%${search.toLowerCase()}%`);
     conditions.push(
-      `(LOWER(title) LIKE $${values.length} OR LOWER(author) LIKE $${values.length} OR LOWER(genre) LIKE $${values.length})`
+      `(
+        LOWER(title) LIKE $${values.length}
+        OR LOWER(COALESCE(title_en, '')) LIKE $${values.length}
+        OR LOWER(author) LIKE $${values.length}
+        OR LOWER(COALESCE(author_en, '')) LIKE $${values.length}
+        OR LOWER(genre) LIKE $${values.length}
+        OR LOWER(COALESCE(genre_en, '')) LIKE $${values.length}
+      )`
     );
   }
 
   if (genre) {
     values.push(genre);
-    conditions.push(`genre = $${values.length}`);
+    conditions.push(`(genre = $${values.length} OR genre_en = $${values.length})`);
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -38,7 +45,9 @@ export async function fetchCartItems(userId) {
         cart_items.book_id,
         cart_items.quantity,
         books.title,
+        books.title_en,
         books.author,
+        books.author_en,
         books.cover_url,
         books.price_kzt
       FROM cart_items

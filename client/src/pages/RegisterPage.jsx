@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { translateErrorMessage } from "../utils/translateErrorMessage";
 
 export default function RegisterPage() {
   const { register } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -18,7 +19,7 @@ export default function RegisterPage() {
       await register(form);
       navigate("/profile");
     } catch (submitError) {
-      setError(submitError.message);
+      setError(translateErrorMessage(submitError.message, language));
     }
   }
 

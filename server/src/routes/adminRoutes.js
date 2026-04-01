@@ -18,12 +18,18 @@ router.post("/books", async (request, response, next) => {
   try {
     const {
       title,
+      titleEn,
       author,
+      authorEn,
       genre,
+      genreEn,
       description,
+      descriptionEn,
       publishYear,
       publisher,
+      publisherEn,
       language,
+      languageEn,
       rating,
       priceKzt,
       coverUrl,
@@ -33,12 +39,30 @@ router.post("/books", async (request, response, next) => {
     await pool.query(
       `
         INSERT INTO books (
-          title, author, genre, description, publish_year,
-          publisher, book_language, rating, price_kzt, cover_url, popularity
+          title, title_en, author, author_en, genre, genre_en, description, description_en, publish_year,
+          publisher, publisher_en, book_language, book_language_en, rating, price_kzt, cover_url, popularity
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
       `,
-      [title, author, genre, description, publishYear, publisher, language, rating, priceKzt, coverUrl, popularity]
+      [
+        title,
+        titleEn,
+        author,
+        authorEn,
+        genre,
+        genreEn,
+        description,
+        descriptionEn,
+        publishYear,
+        publisher,
+        publisherEn,
+        language,
+        languageEn,
+        rating,
+        priceKzt,
+        coverUrl,
+        popularity
+      ]
     );
 
     response.status(201).json({ message: "Книга создана." });
@@ -51,12 +75,18 @@ router.put("/books/:id", async (request, response, next) => {
   try {
     const {
       title,
+      titleEn,
       author,
+      authorEn,
       genre,
+      genreEn,
       description,
+      descriptionEn,
       publishYear,
       publisher,
+      publisherEn,
       language,
+      languageEn,
       rating,
       priceKzt,
       coverUrl,
@@ -68,26 +98,38 @@ router.put("/books/:id", async (request, response, next) => {
         UPDATE books
         SET
           title = $1,
-          author = $2,
-          genre = $3,
-          description = $4,
-          publish_year = $5,
-          publisher = $6,
-          book_language = $7,
-          rating = $8,
-          price_kzt = $9,
-          cover_url = $10,
-          popularity = $11
-        WHERE id = $12
+          title_en = $2,
+          author = $3,
+          author_en = $4,
+          genre = $5,
+          genre_en = $6,
+          description = $7,
+          description_en = $8,
+          publish_year = $9,
+          publisher = $10,
+          publisher_en = $11,
+          book_language = $12,
+          book_language_en = $13,
+          rating = $14,
+          price_kzt = $15,
+          cover_url = $16,
+          popularity = $17
+        WHERE id = $18
       `,
       [
         title,
+        titleEn,
         author,
+        authorEn,
         genre,
+        genreEn,
         description,
+        descriptionEn,
         publishYear,
         publisher,
+        publisherEn,
         language,
+        languageEn,
         rating,
         priceKzt,
         coverUrl,
@@ -124,6 +166,15 @@ router.patch("/users/:id", async (request, response, next) => {
   try {
     await pool.query("UPDATE users SET role = $1 WHERE id = $2", [request.body.role, request.params.id]);
     response.json({ message: "Роль обновлена." });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/users/:id", async (request, response, next) => {
+  try {
+    await pool.query("DELETE FROM users WHERE id = $1 AND role <> 'admin'", [request.params.id]);
+    response.json({ message: "Пользователь удален." });
   } catch (error) {
     next(error);
   }

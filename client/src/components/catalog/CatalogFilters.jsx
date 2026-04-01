@@ -1,21 +1,20 @@
 import { useLanguage } from "../../contexts/LanguageContext";
 
-const genres = [
-  "Все жанры",
-  "Антиутопия",
-  "Психологическая проза",
-  "Философский роман",
-  "Русская классика",
-  "Зарубежная классика"
+const genreOptions = [
+  { ru: "Антиутопия", en: "Dystopia" },
+  { ru: "Психологическая проза", en: "Psychological prose" },
+  { ru: "Философский роман", en: "Philosophical novel" },
+  { ru: "Русская классика", en: "Russian classics" },
+  { ru: "Зарубежная классика", en: "World classics" }
 ];
 
 export default function CatalogFilters({ filters, onChange }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div className="catalog-controls">
       <label className="filter-group">
-        <span>Поиск</span>
+        <span>{t.searchLabel}</span>
         <input
           className="field"
           value={filters.search}
@@ -25,27 +24,23 @@ export default function CatalogFilters({ filters, onChange }) {
       </label>
 
       <label className="filter-group">
-        <span>Жанр</span>
-        <select
-          className="field"
-          value={filters.genre}
-          onChange={(event) => onChange("genre", event.target.value)}
-        >
-          {genres.map((genre) => (
-            <option key={genre} value={genre === "Все жанры" ? "" : genre}>
-              {genre}
-            </option>
-          ))}
+        <span>{t.genreLabel}</span>
+        <select className="field" value={filters.genre} onChange={(event) => onChange("genre", event.target.value)}>
+          <option value="">{t.allGenres}</option>
+          {genreOptions.map((genre) => {
+            const label = language === "en" ? genre.en : genre.ru;
+            return (
+              <option key={genre.en} value={label}>
+                {label}
+              </option>
+            );
+          })}
         </select>
       </label>
 
       <label className="filter-group">
-        <span>Сортировка</span>
-        <select
-          className="field"
-          value={filters.sort}
-          onChange={(event) => onChange("sort", event.target.value)}
-        >
+        <span>{t.sortLabel}</span>
+        <select className="field" value={filters.sort} onChange={(event) => onChange("sort", event.target.value)}>
           <option value="popular">{t.sortPopular}</option>
           <option value="cheap">{t.sortCheap}</option>
           <option value="expensive">{t.sortExpensive}</option>

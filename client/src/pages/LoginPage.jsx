@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { translateErrorMessage } from "../utils/translateErrorMessage";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -19,7 +20,7 @@ export default function LoginPage() {
       await login(form);
       navigate(location.state?.from?.pathname || "/profile");
     } catch (submitError) {
-      setError(submitError.message);
+      setError(translateErrorMessage(submitError.message, language));
     }
   }
 

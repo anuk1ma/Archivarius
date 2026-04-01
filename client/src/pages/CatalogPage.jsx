@@ -4,10 +4,11 @@ import BookCard from "../components/catalog/BookCard";
 import CatalogFilters from "../components/catalog/CatalogFilters";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import { localizeBook } from "../utils/localizeBook";
 
 export default function CatalogPage() {
   const { token, isAuthenticated } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [books, setBooks] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [filters, setFilters] = useState({ search: "", genre: "", sort: "popular" });
@@ -60,7 +61,7 @@ export default function CatalogPage() {
             {books.map((book) => (
               <BookCard
                 key={book.id}
-                book={book}
+                book={localizeBook(book, language)}
                 isFavorite={favoriteIds.includes(book.id)}
                 onFavoriteChange={handleFavoriteChange}
               />
