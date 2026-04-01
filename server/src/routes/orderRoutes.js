@@ -19,14 +19,43 @@ router.post("/", async (request, response, next) => {
   const client = await pool.connect();
 
   try {
+    const {
+      city = "",
+      address = "",
+      paymentMethod = "cash_on_delivery",
+      cardNumber = "",
+      cardHolder = "",
+      cardExpiry = "",
+      cardCvv = ""
+    } = request.body;
+
+    if (!city || !address) throw createError(400, "Заполните город и адрес доставки.");
+    if (!["cash_on_delivery", "card"].includes(paymentMethod)) {
+      throw createError(400, "Выберите корректный способ оплаты.");
+    }
+
+    if (paymentMethod === "card") {
+      if (!cardNumber || !cardHolder || !cardExpiry || !cardCvv) {
+        throw createError(400, "Заполните данные карты.");
+      }
+    }
+
     await client.query("BEGIN");
     const cartItems = await fetchCartItems(request.user.id);
     if (cartItems.length === 0) throw createError(400, "Корзина пуста.");
 
     const totalPrice = cartItems.reduce((sum, item) => sum + Number(item.price_kzt) * item.quantity, 0);
+    const cardLast4 = paymentMethod === "card" ? String(cardNumber).replace(/\D/g, "").slice(-4) : null;
+
     const orderResult = await client.query(
-      "INSERT INTO orders (user_id, status, total_price) VALUES ($1, 'in_transit', $2) RETURNING id",
-      [request.user.id, totalPrice]
+      `
+        INSERT INTO orders (
+          user_id, status, delivery_city, delivery_address, payment_method, card_last4, total_price
+        )
+        VALUES ($1, 'in_transit', $2, $3, $4, $5, $6)
+        RETURNING id
+      `,
+      [request.user.id, city, address, paymentMethod, cardLast4, totalPrice]
     );
 
     for (const item of cartItems) {

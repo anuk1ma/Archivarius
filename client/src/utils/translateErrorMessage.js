@@ -8,6 +8,9 @@ const messageMap = {
   "Такого пользователя не существует.": "errorUserNotFound",
   "Неверный пароль.": "errorWrongPassword",
   "Корзина пуста.": "errorEmptyCart",
+  "Заполните город и адрес доставки.": "errorFillDelivery",
+  "Выберите корректный способ оплаты.": "errorPaymentMethod",
+  "Заполните данные карты.": "errorFillCard",
   "Произошла ошибка запроса.": "errorRequest"
 };
 

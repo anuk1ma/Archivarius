@@ -36,8 +36,8 @@ export function CartProvider({ children }) {
         const data = await api.delete(`/cart/${bookId}`, token);
         setItems(data.items);
       },
-      async checkout() {
-        const data = await api.post("/orders", {}, token);
+      async checkout(payload) {
+        const data = await api.post("/orders", payload, token);
         setItems([]);
         return data;
       }

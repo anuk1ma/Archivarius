@@ -64,7 +64,7 @@ export async function fetchCartItems(userId) {
 export async function fetchOrdersForUser(userId) {
   const result = await pool.query(
     `
-      SELECT id, status, total_price, created_at
+      SELECT id, status, delivery_city, delivery_address, payment_method, card_last4, total_price, created_at
       FROM orders
       WHERE user_id = $1
       ORDER BY created_at DESC

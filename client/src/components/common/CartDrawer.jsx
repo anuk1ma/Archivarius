@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useCart } from "../../contexts/CartContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -6,16 +6,34 @@ import BookCover from "./BookCover";
 import { localizeBook } from "../../utils/localizeBook";
 import { translateErrorMessage } from "../../utils/translateErrorMessage";
 
+const initialCheckoutForm = {
+  city: "",
+  address: "",
+  paymentMethod: "cash_on_delivery",
+  cardNumber: "",
+  cardHolder: "",
+  cardExpiry: "",
+  cardCvv: ""
+};
+
 export default function CartDrawer() {
   const { items, total, isCartOpen, setIsCartOpen, removeItem, checkout } = useCart();
   const { isAuthenticated } = useAuth();
   const { t, language } = useLanguage();
   const [message, setMessage] = useState("");
+  const [form, setForm] = useState(initialCheckoutForm);
+
+  const showCardFields = useMemo(() => form.paymentMethod === "card", [form.paymentMethod]);
+
+  function updateField(key, value) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
 
   async function handleCheckout() {
     try {
-      await checkout();
+      await checkout(form);
       setMessage(t.orderSuccess);
+      setForm(initialCheckoutForm);
     } catch (error) {
       setMessage(translateErrorMessage(error.message, language));
     }
@@ -52,6 +70,65 @@ export default function CartDrawer() {
               </article>
             );
           })}
+
+          <div className="checkout-form">
+            <h4>{t.checkoutTitle}</h4>
+            <p className="muted">{t.checkoutHint}</p>
+
+            <input
+              className="field"
+              placeholder={t.city}
+              value={form.city}
+              onChange={(event) => updateField("city", event.target.value)}
+            />
+            <input
+              className="field"
+              placeholder={t.address}
+              value={form.address}
+              onChange={(event) => updateField("address", event.target.value)}
+            />
+
+            <label className="field-group">
+              <span>{t.paymentMethod}</span>
+              <select
+                className="field"
+                value={form.paymentMethod}
+                onChange={(event) => updateField("paymentMethod", event.target.value)}
+              >
+                <option value="cash_on_delivery">{t.paymentCash}</option>
+                <option value="card">{t.paymentCard}</option>
+              </select>
+            </label>
+
+            {showCardFields && (
+              <div className="checkout-card-grid">
+                <input
+                  className="field"
+                  placeholder={t.cardNumber}
+                  value={form.cardNumber}
+                  onChange={(event) => updateField("cardNumber", event.target.value)}
+                />
+                <input
+                  className="field"
+                  placeholder={t.cardHolder}
+                  value={form.cardHolder}
+                  onChange={(event) => updateField("cardHolder", event.target.value)}
+                />
+                <input
+                  className="field"
+                  placeholder={t.cardExpiry}
+                  value={form.cardExpiry}
+                  onChange={(event) => updateField("cardExpiry", event.target.value)}
+                />
+                <input
+                  className="field"
+                  placeholder={t.cardCvv}
+                  value={form.cardCvv}
+                  onChange={(event) => updateField("cardCvv", event.target.value)}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 

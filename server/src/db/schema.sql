@@ -49,6 +49,10 @@ CREATE TABLE IF NOT EXISTS orders (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   status VARCHAR(30) NOT NULL DEFAULT 'in_transit',
+  delivery_city VARCHAR(120),
+  delivery_address TEXT,
+  payment_method VARCHAR(30),
+  card_last4 VARCHAR(4),
   total_price NUMERIC(10,2) NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

@@ -74,6 +74,10 @@ function getStatusLabel(status, t) {
   return t.statusInTransit;
 }
 
+function getPaymentLabel(paymentMethod, t) {
+  return paymentMethod === "card" ? t.paymentCard : t.paymentCash;
+}
+
 function getRoleLabel(role, language) {
   if (language === "en") return role;
   return role === "admin" ? "администратор" : "пользователь";
@@ -290,6 +294,17 @@ export default function AdminPage() {
                   {order.name || t.adminUnknownUser} • {Number(order.total_price).toLocaleString()} KZT •{" "}
                   {getStatusLabel(order.status, t)}
                 </span>
+                {order.delivery_city && (
+                  <span>
+                    {t.orderDelivery}: {order.delivery_city}, {order.delivery_address}
+                  </span>
+                )}
+                {order.payment_method && (
+                  <span>
+                    {t.orderPayment}: {getPaymentLabel(order.payment_method, t)}
+                    {order.card_last4 ? ` • **** ${order.card_last4}` : ""}
+                  </span>
+                )}
               </div>
               <select
                 className="field"

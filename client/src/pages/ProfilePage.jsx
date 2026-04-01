@@ -12,6 +12,10 @@ function getStatusLabel(status, t) {
   return t.statusInTransit;
 }
 
+function getPaymentLabel(paymentMethod, t) {
+  return paymentMethod === "card" ? t.paymentCard : t.paymentCash;
+}
+
 function getRoleLabel(role, language) {
   if (language === "en") return role;
   return role === "admin" ? "администратор" : "пользователь";
@@ -146,6 +150,17 @@ export default function ProfilePage() {
                         {t.orderLabel} #{order.id}
                       </h3>
                       <p className="status-pill">{getStatusLabel(order.status, t)}</p>
+                      {order.delivery_city && (
+                        <p>
+                          <strong>{t.orderDelivery}:</strong> {order.delivery_city}, {order.delivery_address}
+                        </p>
+                      )}
+                      {order.payment_method && (
+                        <p>
+                          <strong>{t.orderPayment}:</strong> {getPaymentLabel(order.payment_method, t)}
+                          {order.card_last4 ? ` • **** ${order.card_last4}` : ""}
+                        </p>
+                      )}
                       <p>{Number(order.total_price).toLocaleString()} KZT</p>
                     </div>
                     {order.status !== "cancelled" && (

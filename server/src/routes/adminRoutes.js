@@ -186,7 +186,16 @@ router.get("/orders", async (_request, response, next) => {
   try {
     const result = await pool.query(
       `
-        SELECT orders.id, orders.status, orders.total_price, orders.created_at, users.name
+        SELECT
+          orders.id,
+          orders.status,
+          orders.delivery_city,
+          orders.delivery_address,
+          orders.payment_method,
+          orders.card_last4,
+          orders.total_price,
+          orders.created_at,
+          users.name
         FROM orders
         JOIN users ON users.id = orders.user_id
         ORDER BY orders.created_at DESC

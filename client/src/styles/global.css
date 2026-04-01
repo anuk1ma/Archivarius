@@ -260,6 +260,23 @@ button { cursor: pointer; }
   gap: 12px;
   margin-top: 22px;
 }
+.checkout-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.checkout-form h4 {
+  margin: 0;
+  font-family: "Marcellus", serif;
+  color: var(--paper);
+}
+.checkout-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -635,5 +652,8 @@ button { cursor: pointer; }
     width: 100%;
     padding: 9px 10px;
     font-size: 0.76rem;
+  }
+  .checkout-card-grid {
+    grid-template-columns: 1fr;
   }
 }
