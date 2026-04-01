@@ -10,10 +10,19 @@ import { env } from "./config/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
+const normalizedClientUrl = env.clientUrl.replace(/\/+$/, "");
 
 app.use(
   cors({
-    origin: env.clientUrl
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const normalizedOrigin = origin.replace(/\/+$/, "");
+      callback(null, normalizedOrigin === normalizedClientUrl);
+    }
   })
 );
 app.use(express.json());
