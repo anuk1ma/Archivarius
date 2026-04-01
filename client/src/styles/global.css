@@ -272,10 +272,24 @@ button { cursor: pointer; }
   font-family: "Marcellus", serif;
   color: var(--paper);
 }
+.checkout-field {
+  display: grid;
+  gap: 6px;
+}
 .checkout-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+.field--error {
+  border-color: rgba(214, 104, 86, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(214, 104, 86, 0.28);
+}
+.field-error {
+  margin: 0;
+  color: #f1a693;
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 .status-pill {
   display: inline-flex;
@@ -441,6 +455,9 @@ button { cursor: pointer; }
 .cart-drawer__header, .cart-drawer__footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .cart-list { overflow: auto; padding: 18px 0; }
 .form-message, .muted { color: var(--paper-soft); }
+.form-message--warning {
+  color: #f1b19d;
+}
 .site-footer { border-top: 1px solid var(--border); background: rgba(18, 13, 11, 0.9); padding: 28px 0 42px; }
 .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 1160px) {

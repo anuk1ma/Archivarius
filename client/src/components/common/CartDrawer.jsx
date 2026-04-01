@@ -16,24 +16,77 @@ const initialCheckoutForm = {
   cardCvv: ""
 };
 
+function getValidationText(language) {
+  if (language === "en") {
+    return {
+      invalid: "Some fields are filled incorrectly.",
+      city: "Enter the delivery city.",
+      address: "Enter the delivery address.",
+      cardNumber: "Enter a valid card number.",
+      cardHolder: "Enter the cardholder name.",
+      cardExpiry: "Enter expiry in MM/YY format.",
+      cardCvv: "Enter a valid CVV."
+    };
+  }
+
+  return {
+    invalid: "Некоторые поля заполнены неверно.",
+    city: "Введите город доставки.",
+    address: "Введите адрес доставки.",
+    cardNumber: "Введите корректный номер карты.",
+    cardHolder: "Введите имя владельца карты.",
+    cardExpiry: "Введите срок действия в формате MM/YY.",
+    cardCvv: "Введите корректный CVV."
+  };
+}
+
 export default function CartDrawer() {
   const { items, total, isCartOpen, setIsCartOpen, removeItem, checkout } = useCart();
   const { isAuthenticated } = useAuth();
   const { t, language } = useLanguage();
   const [message, setMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [form, setForm] = useState(initialCheckoutForm);
 
   const showCardFields = useMemo(() => form.paymentMethod === "card", [form.paymentMethod]);
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
+    setFieldErrors((current) => ({ ...current, [key]: "" }));
+    setMessage("");
+  }
+
+  function validateForm() {
+    const labels = getValidationText(language);
+    const errors = {};
+
+    if (!form.city.trim()) errors.city = labels.city;
+    if (!form.address.trim()) errors.address = labels.address;
+
+    if (form.paymentMethod === "card") {
+      const normalizedCard = form.cardNumber.replace(/\s+/g, "");
+      if (!/^\d{16}$/.test(normalizedCard)) errors.cardNumber = labels.cardNumber;
+      if (!form.cardHolder.trim() || form.cardHolder.trim().length < 3) errors.cardHolder = labels.cardHolder;
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.cardExpiry.trim())) errors.cardExpiry = labels.cardExpiry;
+      if (!/^\d{3,4}$/.test(form.cardCvv.trim())) errors.cardCvv = labels.cardCvv;
+    }
+
+    setFieldErrors(errors);
+    return { isValid: Object.keys(errors).length === 0, invalidMessage: labels.invalid };
   }
 
   async function handleCheckout() {
+    const validation = validateForm();
+    if (!validation.isValid) {
+      setMessage(validation.invalidMessage);
+      return;
+    }
+
     try {
       await checkout(form);
       setMessage(t.orderSuccess);
       setForm(initialCheckoutForm);
+      setFieldErrors({});
     } catch (error) {
       setMessage(translateErrorMessage(error.message, language));
     }
@@ -75,18 +128,25 @@ export default function CartDrawer() {
             <h4>{t.checkoutTitle}</h4>
             <p className="muted">{t.checkoutHint}</p>
 
-            <input
-              className="field"
-              placeholder={t.city}
-              value={form.city}
-              onChange={(event) => updateField("city", event.target.value)}
-            />
-            <input
-              className="field"
-              placeholder={t.address}
-              value={form.address}
-              onChange={(event) => updateField("address", event.target.value)}
-            />
+            <div className="checkout-field">
+              <input
+                className={`field ${fieldErrors.city ? "field--error" : ""}`}
+                placeholder={t.city}
+                value={form.city}
+                onChange={(event) => updateField("city", event.target.value)}
+              />
+              {fieldErrors.city && <p className="field-error">{fieldErrors.city}</p>}
+            </div>
+
+            <div className="checkout-field">
+              <input
+                className={`field ${fieldErrors.address ? "field--error" : ""}`}
+                placeholder={t.address}
+                value={form.address}
+                onChange={(event) => updateField("address", event.target.value)}
+              />
+              {fieldErrors.address && <p className="field-error">{fieldErrors.address}</p>}
+            </div>
 
             <label className="field-group">
               <span>{t.paymentMethod}</span>
@@ -102,30 +162,45 @@ export default function CartDrawer() {
 
             {showCardFields && (
               <div className="checkout-card-grid">
-                <input
-                  className="field"
-                  placeholder={t.cardNumber}
-                  value={form.cardNumber}
-                  onChange={(event) => updateField("cardNumber", event.target.value)}
-                />
-                <input
-                  className="field"
-                  placeholder={t.cardHolder}
-                  value={form.cardHolder}
-                  onChange={(event) => updateField("cardHolder", event.target.value)}
-                />
-                <input
-                  className="field"
-                  placeholder={t.cardExpiry}
-                  value={form.cardExpiry}
-                  onChange={(event) => updateField("cardExpiry", event.target.value)}
-                />
-                <input
-                  className="field"
-                  placeholder={t.cardCvv}
-                  value={form.cardCvv}
-                  onChange={(event) => updateField("cardCvv", event.target.value)}
-                />
+                <div className="checkout-field">
+                  <input
+                    className={`field ${fieldErrors.cardNumber ? "field--error" : ""}`}
+                    placeholder={t.cardNumber}
+                    value={form.cardNumber}
+                    onChange={(event) => updateField("cardNumber", event.target.value)}
+                  />
+                  {fieldErrors.cardNumber && <p className="field-error">{fieldErrors.cardNumber}</p>}
+                </div>
+
+                <div className="checkout-field">
+                  <input
+                    className={`field ${fieldErrors.cardHolder ? "field--error" : ""}`}
+                    placeholder={t.cardHolder}
+                    value={form.cardHolder}
+                    onChange={(event) => updateField("cardHolder", event.target.value)}
+                  />
+                  {fieldErrors.cardHolder && <p className="field-error">{fieldErrors.cardHolder}</p>}
+                </div>
+
+                <div className="checkout-field">
+                  <input
+                    className={`field ${fieldErrors.cardExpiry ? "field--error" : ""}`}
+                    placeholder={t.cardExpiry}
+                    value={form.cardExpiry}
+                    onChange={(event) => updateField("cardExpiry", event.target.value)}
+                  />
+                  {fieldErrors.cardExpiry && <p className="field-error">{fieldErrors.cardExpiry}</p>}
+                </div>
+
+                <div className="checkout-field">
+                  <input
+                    className={`field ${fieldErrors.cardCvv ? "field--error" : ""}`}
+                    placeholder={t.cardCvv}
+                    value={form.cardCvv}
+                    onChange={(event) => updateField("cardCvv", event.target.value)}
+                  />
+                  {fieldErrors.cardCvv && <p className="field-error">{fieldErrors.cardCvv}</p>}
+                </div>
               </div>
             )}
           </div>
@@ -137,7 +212,7 @@ export default function CartDrawer() {
         <button type="button" className="primary-button" onClick={handleCheckout}>
           {t.cartCheckout}
         </button>
-        {message && <p className="form-message">{message}</p>}
+        {message && <p className="form-message form-message--warning">{message}</p>}
       </div>
     </aside>
   );
