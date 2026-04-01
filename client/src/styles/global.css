@@ -393,7 +393,11 @@ button { cursor: pointer; }
 }
 
 @media (max-width: 980px) {
-  .hero-grid, .book-view, .profile-layout, .footer-grid, .catalog-controls, .book-grid, .section-grid { grid-template-columns: 1fr; }
+  .hero-grid, .book-view, .profile-layout, .footer-grid, .catalog-controls, .section-grid { grid-template-columns: 1fr; }
+  .book-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
   .nav-row {
     grid-template-columns: 1fr;
     justify-items: stretch;
@@ -414,6 +418,9 @@ button { cursor: pointer; }
   .user-box {
     flex-wrap: wrap;
     justify-content: center;
+  }
+  .book-card__body {
+    padding: 16px;
   }
   .admin-form { grid-template-columns: 1fr; }
 }
