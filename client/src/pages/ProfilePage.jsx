@@ -3,7 +3,9 @@ import { api } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import BookCover from "../components/common/BookCover";
+import UserAvatar from "../components/common/UserAvatar";
 import { localizeBook } from "../utils/localizeBook";
+import { translateErrorMessage } from "../utils/translateErrorMessage";
 
 function getStatusLabel(status, t) {
   if (status === "cancelled") return t.statusCancelled;
@@ -16,20 +18,42 @@ function getRoleLabel(role, language) {
 }
 
 export default function ProfilePage() {
-  const { token, user } = useAuth();
+  const { token, user, setUser } = useAuth();
   const { t, language } = useLanguage();
   const [tab, setTab] = useState("account");
   const [favorites, setFavorites] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [profileForm, setProfileForm] = useState({ name: "", avatarUrl: "" });
+  const [profileMessage, setProfileMessage] = useState("");
 
   useEffect(() => {
     api.get("/favorites", token).then((data) => setFavorites(data.items)).catch(() => setFavorites([]));
     api.get("/orders", token).then((data) => setOrders(data.orders)).catch(() => setOrders([]));
   }, [token]);
 
+  useEffect(() => {
+    setProfileForm({
+      name: user?.name || "",
+      avatarUrl: user?.avatar_url || ""
+    });
+  }, [user]);
+
   async function cancelOrder(orderId) {
     const data = await api.patch(`/orders/${orderId}/cancel`, {}, token);
     setOrders(data.orders);
+  }
+
+  async function saveProfile(event) {
+    event.preventDefault();
+    setProfileMessage("");
+
+    try {
+      const data = await api.patch("/auth/me", profileForm, token);
+      setUser(data.user);
+      setProfileMessage(t.profileUpdated);
+    } catch (error) {
+      setProfileMessage(translateErrorMessage(error.message, language));
+    }
   }
 
   return (
@@ -51,21 +75,40 @@ export default function ProfilePage() {
             <div className="paper-card">
               <h1>{t.profileTitle}</h1>
               <div className="account-banner">
-                <div>
-                  <p className="eyebrow">{t.profileReaderType}</p>
-                  <h2>{user?.name}</h2>
+                <div className="account-banner__user">
+                  <UserAvatar user={user} size="xl" />
+                  <div>
+                    <p className="eyebrow">{t.profileReaderType}</p>
+                    <h2>{user?.name}</h2>
+                  </div>
                 </div>
                 <span className="status-pill">{getRoleLabel(user?.role, language)}</span>
               </div>
-              <p>
-                <strong>{t.name}:</strong> {user?.name}
-              </p>
               <p>
                 <strong>{t.email}:</strong> {user?.email}
               </p>
               <p>
                 <strong>{t.roleLabel}:</strong> {getRoleLabel(user?.role, language)}
               </p>
+
+              <form className="profile-form" onSubmit={saveProfile}>
+                <input
+                  className="field"
+                  placeholder={t.name}
+                  value={profileForm.name}
+                  onChange={(event) => setProfileForm({ ...profileForm, name: event.target.value })}
+                />
+                <input
+                  className="field"
+                  placeholder={t.avatarUrl}
+                  value={profileForm.avatarUrl}
+                  onChange={(event) => setProfileForm({ ...profileForm, avatarUrl: event.target.value })}
+                />
+                <button className="primary-button" type="submit">
+                  {t.save}
+                </button>
+              </form>
+              {profileMessage && <p className="form-message">{profileMessage}</p>}
             </div>
           )}
           {tab === "favorites" && (

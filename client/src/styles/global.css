@@ -86,6 +86,43 @@ button { cursor: pointer; }
 .user-box { display: flex; align-items: center; gap: 8px; color: var(--muted); flex-shrink: 0; }
 .user-box__link { padding: 9px 12px; border-radius: 999px; border: 1px solid transparent; color: var(--paper); white-space: nowrap; }
 .user-box__link:hover { border-color: var(--border); }
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a86d3f, #cc9c68);
+  color: #22160f;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 240, 220, 0.18);
+}
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.user-avatar--sm {
+  width: 36px;
+  height: 36px;
+  font-size: 0.9rem;
+}
+.user-avatar--md {
+  width: 48px;
+  height: 48px;
+  font-size: 1rem;
+}
+.user-avatar--lg {
+  width: 64px;
+  height: 64px;
+  font-size: 1.2rem;
+}
+.user-avatar--xl {
+  width: 86px;
+  height: 86px;
+  font-size: 1.5rem;
+}
 .page-content { min-height: calc(100vh - 170px); }
 .hero-section, .section { padding: 72px 0; }
 .hero-section { position: relative; overflow: hidden; }
@@ -205,9 +242,24 @@ button { cursor: pointer; }
 .admin-form-actions, .admin-item__actions { display: flex; gap: 12px; align-items: center; }
 .admin-item__content { display: grid; gap: 4px; }
 .admin-item__content span { color: var(--muted); }
+.admin-user-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .admin-subtitle { margin-top: 0; color: var(--muted); }
 .feature-card h3 { margin: 10px 0 12px; font-family: "Marcellus", serif; font-size: 1.6rem; }
 .account-banner { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.account-banner__user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.profile-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -505,6 +557,13 @@ button { cursor: pointer; }
   .mobile-nav-controls {
     display: grid;
     gap: 10px;
+  }
+  .mobile-nav-account__user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0 4px;
+    color: var(--paper);
   }
   .mobile-nav-links a,
   .mobile-nav-account a,

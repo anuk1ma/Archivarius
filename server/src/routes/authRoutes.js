@@ -9,7 +9,7 @@ const router = Router();
 
 router.post("/register", async (request, response, next) => {
   try {
-    const { name, email, password } = request.body;
+    const { name, email, password, avatarUrl = "" } = request.body;
     if (!name || !email || !password) throw createError(400, "Заполните имя, email и пароль.");
 
     const existingUser = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
@@ -17,8 +17,12 @@ router.post("/register", async (request, response, next) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, role",
-      [name, email, passwordHash]
+      `
+        INSERT INTO users (name, email, avatar_url, password_hash)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, name, email, avatar_url, role
+      `,
+      [name, email, avatarUrl || null, passwordHash]
     );
 
     const user = result.rows[0];
@@ -34,7 +38,7 @@ router.post("/login", async (request, response, next) => {
     if (!email || !password) throw createError(400, "Введите email и пароль.");
 
     const result = await pool.query(
-      "SELECT id, name, email, role, password_hash FROM users WHERE email = $1",
+      "SELECT id, name, email, avatar_url, role, password_hash FROM users WHERE email = $1",
       [email]
     );
 
@@ -44,7 +48,7 @@ router.post("/login", async (request, response, next) => {
     if (!isValid) throw createError(401, "Неверный пароль.");
 
     response.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: { id: user.id, name: user.name, email: user.email, avatar_url: user.avatar_url, role: user.role },
       token: signToken(user)
     });
   } catch (error) {
@@ -54,9 +58,30 @@ router.post("/login", async (request, response, next) => {
 
 router.get("/me", requireAuth, async (request, response, next) => {
   try {
-    const result = await pool.query("SELECT id, name, email, role FROM users WHERE id = $1", [
+    const result = await pool.query("SELECT id, name, email, avatar_url, role FROM users WHERE id = $1", [
       request.user.id
     ]);
+    response.json({ user: result.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/me", requireAuth, async (request, response, next) => {
+  try {
+    const { name, avatarUrl = "" } = request.body;
+    if (!name) throw createError(400, "Заполните имя.");
+
+    const result = await pool.query(
+      `
+        UPDATE users
+        SET name = $1, avatar_url = $2
+        WHERE id = $3
+        RETURNING id, name, email, avatar_url, role
+      `,
+      [name, avatarUrl || null, request.user.id]
+    );
+
     response.json({ user: result.rows[0] });
   } catch (error) {
     next(error);

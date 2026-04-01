@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCart } from "../../contexts/CartContext";
+import UserAvatar from "../common/UserAvatar";
 
 export default function Header() {
   const { t, language, setLanguage } = useLanguage();
@@ -79,6 +80,7 @@ export default function Header() {
           </button>
           {isAuthenticated ? (
             <div className="user-box">
+              <UserAvatar user={user} size="sm" />
               <Link className="user-box__link" to="/profile">
                 {user?.name}
               </Link>
@@ -138,6 +140,10 @@ export default function Header() {
 
         {isAuthenticated ? (
           <div className="mobile-nav-account">
+            <div className="mobile-nav-account__user">
+              <UserAvatar user={user} size="lg" />
+              <span>{user?.name}</span>
+            </div>
             <Link className="user-box__link" to="/profile">
               {user?.name}
             </Link>

@@ -2,6 +2,7 @@ import { translations } from "../data/translations";
 
 const messageMap = {
   "Заполните имя, email и пароль.": "errorFillAuthFields",
+  "Заполните имя.": "errorFillName",
   "Введите email и пароль.": "errorFillLoginFields",
   "Пользователь с таким email уже существует.": "errorUserExists",
   "Такого пользователя не существует.": "errorUserNotFound",

@@ -15,11 +15,16 @@ async function seed() {
   const adminPassword = await bcrypt.hash("admin12345", 10);
   await pool.query(
     `
-      INSERT INTO users (name, email, password_hash, role)
-      VALUES ($1, $2, $3, 'admin')
+      INSERT INTO users (name, email, avatar_url, password_hash, role)
+      VALUES ($1, $2, $3, $4, 'admin')
       ON CONFLICT (email) DO NOTHING
     `,
-    ["Admin Archivarius", "admin@archivarius.local", adminPassword]
+    [
+      "Admin Archivarius",
+      "admin@archivarius.local",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80",
+      adminPassword
+    ]
   );
 
   for (const book of seedBooks) {

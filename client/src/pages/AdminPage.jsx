@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "../api/client";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import UserAvatar from "../components/common/UserAvatar";
 import { localizeBook } from "../utils/localizeBook";
 
 const initialBook = {
@@ -251,7 +252,10 @@ export default function AdminPage() {
           {users.map((currentUser) => (
             <article key={currentUser.id} className="admin-item">
               <div className="admin-item__content">
-                <strong>{currentUser.name}</strong>
+                <div className="admin-user-meta">
+                  <UserAvatar user={currentUser} size="sm" />
+                  <strong>{currentUser.name}</strong>
+                </div>
                 <span>
                   {currentUser.email} • {getRoleLabel(currentUser.role, language)}
                 </span>

@@ -8,7 +8,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", avatarUrl: "" });
   const [error, setError] = useState("");
 
   async function handleSubmit(event) {
@@ -47,6 +47,12 @@ export default function RegisterPage() {
             type="password"
             value={form.password}
             onChange={(event) => setForm({ ...form, password: event.target.value })}
+          />
+          <input
+            className="field"
+            placeholder={t.avatarUrl}
+            value={form.avatarUrl}
+            onChange={(event) => setForm({ ...form, avatarUrl: event.target.value })}
           />
           <button className="primary-button" type="submit">
             {t.submitRegister}

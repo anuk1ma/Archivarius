@@ -155,7 +155,9 @@ router.delete("/books/:id", async (request, response, next) => {
 
 router.get("/users", async (_request, response, next) => {
   try {
-    const result = await pool.query("SELECT id, name, email, role, created_at FROM users ORDER BY id DESC");
+    const result = await pool.query(
+      "SELECT id, name, email, avatar_url, role, created_at FROM users ORDER BY id DESC"
+    );
     response.json({ users: result.rows });
   } catch (error) {
     next(error);
