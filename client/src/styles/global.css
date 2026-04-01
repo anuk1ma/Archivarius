@@ -34,6 +34,28 @@ button { cursor: pointer; }
 .nav-row, .footer-grid, .hero-grid, .book-view, .profile-layout { display: grid; gap: 24px; }
 .nav-row { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; padding: 14px 0; column-gap: 18px; }
 .brand-mark { font-family: "Cormorant Garamond", serif; font-size: 2rem; font-weight: 700; letter-spacing: 0.04em; }
+.mobile-menu-button,
+.mobile-nav-overlay,
+.mobile-nav-drawer { display: none; }
+.mobile-menu-button {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(242, 233, 219, 0.08);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+}
+.mobile-menu-button span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--paper);
+}
 .main-nav, .nav-actions, .auth-links, .lang-switcher, .hero-actions, .book-card__actions, .book-view__actions { display: flex; align-items: center; gap: 12px; }
 .main-nav {
   justify-content: center;
@@ -404,51 +426,105 @@ button { cursor: pointer; }
     width: min(100%, calc(100% - 20px));
   }
   .nav-row {
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
     padding: 12px 0;
     gap: 10px;
   }
   .brand-mark {
     font-size: 1.7rem;
+    text-align: center;
+  }
+  .mobile-menu-button {
+    display: inline-flex;
   }
   .main-nav,
-  .nav-actions,
-  .auth-links,
-  .user-box {
-    width: 100%;
+  .nav-actions {
+    display: none;
   }
-  .main-nav {
+  .mobile-nav-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 8, 7, 0.56);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 39;
+  }
+  .mobile-nav-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-nav-drawer {
+    display: grid;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(320px, 84vw);
+    height: 100vh;
+    padding: 20px;
+    background: rgba(27, 20, 16, 0.96);
+    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transform: translateX(-104%);
+    transition: transform 0.32s ease;
+    z-index: 40;
+    align-content: start;
+    gap: 18px;
+  }
+  .mobile-nav-drawer.is-open {
+    transform: translateX(0);
+  }
+  .mobile-nav-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .mobile-nav-close {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(242, 233, 219, 0.08);
+    color: var(--paper);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .mobile-nav-links,
+  .mobile-nav-account,
+  .mobile-nav-controls {
+    display: grid;
+    gap: 10px;
+  }
+  .mobile-nav-links a,
+  .mobile-nav-account a,
+  .mobile-nav-account button {
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    background: rgba(242, 233, 219, 0.06);
+    color: var(--text);
+    text-align: left;
+  }
+  .mobile-nav-links a.active,
+  .mobile-nav-links a:hover,
+  .mobile-nav-account a.active,
+  .mobile-nav-account a:hover,
+  .mobile-nav-account button:hover {
+    border-color: var(--border);
+  }
+  .mobile-nav-controls .lang-switcher {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
-  .main-nav a,
-  .auth-links a,
-  .user-box button,
-  .cart-button,
-  .lang-switcher button,
-  .user-box__link {
+  .mobile-nav-controls .lang-switcher button,
+  .mobile-nav-controls .cart-button {
     width: 100%;
     text-align: center;
-    padding: 10px 12px;
-  }
-  .nav-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .lang-switcher {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: 100%;
-    gap: 8px;
-  }
-  .cart-button {
-    width: 100%;
-  }
-  .auth-links,
-  .user-box {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    padding: 11px 12px;
   }
 }
