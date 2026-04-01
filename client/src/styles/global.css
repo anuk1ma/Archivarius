@@ -527,4 +527,47 @@ button { cursor: pointer; }
     text-align: center;
     padding: 11px 12px;
   }
+  .book-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .book-card {
+    border-radius: 18px;
+  }
+  .book-card__cover-cta,
+  .book-card__description,
+  .book-card__actions .ghost-button {
+    display: none;
+  }
+  .book-card__body {
+    padding: 10px;
+  }
+  .book-card__genre {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+  }
+  .book-card h3 {
+    margin: 4px 0 2px;
+    font-size: 0.9rem;
+    line-height: 1.1;
+  }
+  .book-card__author {
+    margin-bottom: 8px;
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+  .book-card__meta {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+  }
+  .book-card__actions {
+    display: block;
+  }
+  .book-card__actions .primary-button {
+    width: 100%;
+    padding: 9px 10px;
+    font-size: 0.76rem;
+  }
 }
