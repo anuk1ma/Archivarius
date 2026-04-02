@@ -1,0 +1,24 @@
+flowchart TD
+    Home["Главная"]
+    Catalog["Каталог"]
+    Book["Карточка книги"]
+    Login["Вход"]
+    Register["Регистрация"]
+    Profile["Профиль"]
+    Contacts["Контакты"]
+    Admin["Админ-панель"]
+    Cart["Корзина / Checkout"]
+    NotFound["404"]
+
+    Home --> Catalog
+    Home --> Contacts
+    Catalog --> Book
+    Catalog --> Cart
+    Book --> Cart
+    Login --> Profile
+    Register --> Profile
+    Profile --> Catalog
+    Profile --> Cart
+    Home --> Login
+    Home --> Register
+    Home --> Admin

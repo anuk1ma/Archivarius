@@ -1,0 +1,13 @@
+flowchart LR
+    Browser["Браузер пользователя"]
+    Frontend["Frontend\nReact + Vite"]
+    Backend["Backend\nNode.js + Express REST API"]
+    DB["PostgreSQL\nNeon"]
+    Deploy1["Vercel"]
+    Deploy2["Render"]
+
+    Browser --> Frontend
+    Frontend --> Backend
+    Backend --> DB
+    Frontend -. развертывание .-> Deploy1
+    Backend -. развертывание .-> Deploy2

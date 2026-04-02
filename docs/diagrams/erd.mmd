@@ -1,0 +1,70 @@
+erDiagram
+    USERS ||--o{ FAVORITES : has
+    USERS ||--o{ CART_ITEMS : has
+    USERS ||--o{ ORDERS : places
+    BOOKS ||--o{ FAVORITES : saved_in
+    BOOKS ||--o{ CART_ITEMS : added_to
+    BOOKS ||--o{ ORDER_ITEMS : included_in
+    ORDERS ||--o{ ORDER_ITEMS : contains
+
+    USERS {
+        int id PK
+        string name
+        string email
+        string avatar_url
+        string password_hash
+        string role
+    }
+
+    BOOKS {
+        int id PK
+        string title
+        string title_en
+        string author
+        string author_en
+        string genre
+        string genre_en
+        text description
+        text description_en
+        int publish_year
+        string publisher
+        string publisher_en
+        string book_language
+        string book_language_en
+        decimal price_kzt
+        decimal rating
+        string cover_url
+        int popularity
+    }
+
+    FAVORITES {
+        int id PK
+        int user_id FK
+        int book_id FK
+    }
+
+    CART_ITEMS {
+        int id PK
+        int user_id FK
+        int book_id FK
+        int quantity
+    }
+
+    ORDERS {
+        int id PK
+        int user_id FK
+        string status
+        string delivery_city
+        string delivery_address
+        string payment_method
+        string card_last4
+        decimal total_price
+    }
+
+    ORDER_ITEMS {
+        int id PK
+        int order_id FK
+        int book_id FK
+        int quantity
+        decimal price_kzt
+    }
